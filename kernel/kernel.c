@@ -58,6 +58,7 @@ void init(int arg/*ignored*/) {
     W("entering init");
 
 	// Q2: quest: "two cooperative printers"
+	test_kern_tasks_print(); 
 	/* STUDENT: TODO: your code here */
 	// Q4: quest: "two donuts"
 	/* STUDENT: TODO: your code here */
@@ -75,3 +76,4 @@ void init(int arg/*ignored*/) {
 		}
 	}
 }
+
