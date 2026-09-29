@@ -28,7 +28,7 @@
 /* sched interval, for arm generic timer. 
 when on qemu, arm generic timer is at 1MHz by default
 on rpi3, it's also 1MHz. */
-int interval = (1 * 1000 * 1000 / SCHED_TICK_HZ);
+int interval = (1 * 1000 * 100000 / SCHED_TICK_HZ);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -71,11 +71,11 @@ void handle_generic_timer_irq(void)  {
 	checks for the generic timer's condition whenever DAIF is set? or the 
 	behavior of qemu?). As a result, timer_irq handler will be called 
 	back to back, corrupting the kernel stack  */
-
 	generic_timer_reset(interval);
 	
 	// drive the scheduler
 	/* STUDENT: TODO: your code here */
+	timer_tick();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
