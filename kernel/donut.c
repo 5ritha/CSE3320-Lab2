@@ -18,6 +18,8 @@
 #define PIXELSIZE 4 /*ARGB, expected by /dev/fb*/
 typedef unsigned int PIXEL;
 
+extern void exit_process(int status);
+
 #include "fb.h"
 static inline void setpixel(unsigned char *buf, int x, int y, int pit, PIXEL p) {
     // W("buf %lx xx %d yy %d pitch %d", (unsigned long)buf, x, y, pit);
@@ -64,16 +66,16 @@ void donut_canvas_init(void) {
 }
 
 // actually not needed
-// static void screen_clear(int idx) {
-//     PIXEL blk = 0x0;
-//     int x, y;
-//     int offsetx = xoff[idx], offsety = yoff[idx]; 
-//     int pitch = the_fb.pitch;
-//     for (y = offsety; y < offsety + NN/2; y++)
-//         for (x = offsetx; x < offsetx + NN/2; x++) {
-//             setpixel(the_fb.fb, x, y, pitch, blk);
-//         }
-// }
+static void screen_clear(int idx) {
+    PIXEL blk = 0x0;
+    int x, y;
+    int offsetx = xoff[idx], offsety = yoff[idx]; 
+    int pitch = the_fb.pitch;
+    for (y = offsety; y < offsety + NN/2; y++)
+        for (x = offsetx; x < offsetx + NN/2; x++) {
+            setpixel(the_fb.fb, x, y, pitch, blk);
+        }
+}
 
 
 static PIXEL int2rgb (int value); 
@@ -93,8 +95,10 @@ static PIXEL int2rgb (int value);
 void donut_pixel(int idx) 
 {
     int sA = 1024, cA = 0, sB = 1024, cB = 0, _;
+    int frame_count = 0;
     
-    while (1) {
+    while (1) 
+    {
         memset(b[idx], 0, 1760);  // text buffer 0: black bkgnd
         memset(z[idx], 127, 1760); // z buffer
         int sj = 0, cj = 1024;
@@ -164,8 +168,14 @@ void donut_pixel(int idx)
             }
         }
         /* STUDENT: TODO: your code here */
+        frame_count++;
+        if(idx == 0 && frame_count >= 60)
+        {
+            screen_clear(idx);
+            exit_process(0);
+        }
+        
         yield();
-
     }
 }
 
