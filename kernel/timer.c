@@ -71,11 +71,11 @@ void handle_generic_timer_irq(void)  {
 	checks for the generic timer's condition whenever DAIF is set? or the 
 	behavior of qemu?). As a result, timer_irq handler will be called 
 	back to back, corrupting the kernel stack  */
-
 	generic_timer_reset(interval);
 	
 	// drive the scheduler
 	/* STUDENT: TODO: your code here */
+	timer_tick();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
