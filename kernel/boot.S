@@ -70,7 +70,9 @@ setup_sp:
 	// Q1: quest: boot. Set sp to be at the end (or top) of the bootstack (cpu0)
 	/* STUDENT: TODO: your code here */
 	ldr x1, =boot_stacks	// sched.c		
-	/* STUDENT: TODO: your code here */
+	add x1, x1, #PAGE_SIZE // Moves x1 to the end of the stack
+	mov sp, x1 // Sets the stack pointer to the x1 address
+/* STUDENT: TODO: your code here */
 	// NB: we aren't use sp yet -- until we call a C function for the 1st time
 
 	// install irq vectors
@@ -79,3 +81,5 @@ setup_sp:
 
 	// load the addr of kernel_main
 	bl kernel_main  	// kernel.c	
+
+
