@@ -303,23 +303,30 @@ void test_kern_reader_writer() {
 
 extern void donut(int idx); 	//donut.c
 extern void donut_canvas_init(void); //donut.c don't forget to init canvas -- once
-void kern_task_donut(int idx) {
+void kern_task_donut(int idx) 
+{
 	printf("process started EL %d, pid %d idx %d\r\n", 
         get_el(), myproc()->pid, idx);
     // exp: diff proirities --> donuts will turn at diff rates
 	/* STUDENT: TODO: your code here */
+    donut(idx);
 }
 
-void test_kern_tasks_donut(void) {
+void test_kern_tasks_donut(void) 
+{
     char name[10]; 
     int res; 
 
     donut_canvas_init(); 
     
     // spawn N donut tasks 
-    for (int i=0; i<N_DONUTS; i++) {
+    for (int i=0; i<N_DONUTS; i++) 
+    {
         snprintf(name, 10, "donut-%d", i); 
         /* STUDENT: TODO: your code here */
+        res = copy_process(PF_KTHREAD, (unsigned long)&kern_task_donut, (unsigned long)i, name);
+
+        BUG_ON(res < 0);
     }
 
 	// current we are on the "init" task. 
