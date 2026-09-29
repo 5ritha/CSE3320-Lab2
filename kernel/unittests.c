@@ -326,6 +326,26 @@ void test_kern_tasks_donut(void)
         /* STUDENT: TODO: your code here */
         res = copy_process(PF_KTHREAD, (unsigned long)&kern_task_donut, (unsigned long)i, name);
 
+        // Priority Setting 1
+        // task[res] -> priority = (i % 5) + 1;
+        // task[res] -> credits = task[res] -> priority;
+
+        // Priority Setting 2
+        // task[res] -> priority = (i % 10) + 1;
+        // task[res] -> credits = task[res] -> priority;
+
+        // Priority Setting 3
+        // task[res] -> priority = (i % 2) + 1;
+        // task[res] -> credits = task[res] -> priority;
+
+        // Priority Setting 4
+        // task[res] -> priority = 5 - (i % 5);
+        // task[res] -> credits = task[res] -> priority;
+
+        // Priority Setting 5
+        // task[res] -> priority = 10 - (i % 10);
+        // task[res] -> credits = task[res] -> priority;
+
         BUG_ON(res < 0);
     }
 
@@ -333,7 +353,7 @@ void test_kern_tasks_donut(void)
 	// if we allow this function to return to kernel_main() which procceeds to wait(), 
 	// and our sleep() (called by wait()) is yet to function, the kernel will crash there. so we just keep
 	// the init task to keep yielding here forever. 	
-	while (1)
+    while (1)
         	yield();
 	
     // some ideas to demonstrate scheduling:
