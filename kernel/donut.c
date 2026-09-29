@@ -18,6 +18,8 @@
 #define PIXELSIZE 4 /*ARGB, expected by /dev/fb*/
 typedef unsigned int PIXEL;
 
+extern void exit_process(int status);
+
 #include "fb.h"
 static inline void setpixel(unsigned char *buf, int x, int y, int pit, PIXEL p) {
     // W("buf %lx xx %d yy %d pitch %d", (unsigned long)buf, x, y, pit);
@@ -26,13 +28,25 @@ static inline void setpixel(unsigned char *buf, int x, int y, int pit, PIXEL p) 
 }
 
 // canvas layout, 2x2
-static const int xoff[] = {0,NN/2,0,NN/2};
-static const int yoff[] = {0,0,NN/2,NN/2};
+static const int xoff[] = {
+    0, NN/6, 2*NN/6, 3*NN/6, 4*NN/6, 5*NN/6,
+    0, NN/6, 2*NN/6, 3*NN/6, 4*NN/6, 5*NN/6,
+    0, NN/6, 2*NN/6, 3*NN/6, 4*NN/6, 5*NN/6,
+    0, NN/6, 2*NN/6, 3*NN/6, 4*NN/6, 5*NN/6,
+    0, NN/6, 2*NN/6, 3*NN/6, 4*NN/6, 5*NN/6,
+    0, NN/6, 2*NN/6, 3*NN/6, 4*NN/6
+};
+static const int yoff[] = {
+    0, 0, 0, 0, 0, 0,
+    NN/6, NN/6, NN/6, NN/6, NN/6, NN/6,
+    2*NN/6, 2*NN/6, 2*NN/6, 2*NN/6, 2*NN/6, 2*NN/6,
+    3*NN/6, 3*NN/6, 3*NN/6, 3*NN/6, 3*NN/6, 3*NN/6,
+    4*NN/6, 4*NN/6, 4*NN/6, 4*NN/6, 4*NN/6, 4*NN/6,
+    5*NN/6, 5*NN/6, 5*NN/6, 5*NN/6, 5*NN/6
+};
 _Static_assert(N_DONUTS <= NELEM(xoff));
+enum {K=1};
 
-enum {K=4}; // donut scale factor, see code below
-_Static_assert(80*K  <= NN/2); // columns
-_Static_assert(22*K*2  <= NN/2); // rows
 
 static char b[N_DONUTS][1760];        // text buffer (W 80 H 22?
 static signed char z[N_DONUTS][1760]; // z buffer
@@ -52,16 +66,16 @@ void donut_canvas_init(void) {
 }
 
 // actually not needed
-// static void screen_clear(int idx) {
-//     PIXEL blk = 0x0;
-//     int x, y;
-//     int offsetx = xoff[idx], offsety = yoff[idx]; 
-//     int pitch = the_fb.pitch;
-//     for (y = offsety; y < offsety + NN/2; y++)
-//         for (x = offsetx; x < offsetx + NN/2; x++) {
-//             setpixel(the_fb.fb, x, y, pitch, blk);
-//         }
-// }
+static void screen_clear(int idx) {
+    PIXEL blk = 0x0;
+    int x, y;
+    int offsetx = xoff[idx], offsety = yoff[idx]; 
+    int pitch = the_fb.pitch;
+    for (y = offsety; y < offsety + NN/2; y++)
+        for (x = offsetx; x < offsetx + NN/2; x++) {
+            setpixel(the_fb.fb, x, y, pitch, blk);
+        }
+}
 
 
 static PIXEL int2rgb (int value); 
@@ -78,10 +92,13 @@ static PIXEL int2rgb (int value);
 // draw dots on canvas, closer to the original js version (see comment at the end)
 // Q4: quest: "two donuts". understand code below
 // Q7: quest: "donuts in sync"
-void donut_pixel(int idx) {
+void donut_pixel(int idx) 
+{
     int sA = 1024, cA = 0, sB = 1024, cB = 0, _;
+    int frame_count = 0;
     
-    while (1) {
+    while (1) 
+    {
         memset(b[idx], 0, 1760);  // text buffer 0: black bkgnd
         memset(z[idx], 127, 1760); // z buffer
         int sj = 0, cj = 1024;
@@ -118,8 +135,11 @@ void donut_pixel(int idx) {
             }
             R(9, 7, cj, sj) // rotate j
         }
-        R(5, 7, cA, sA);
-        R(5, 8, cB, sB);
+        //R(5, 7, cA, sA);
+        //R(5, 8, cB, sB);
+
+        R(20, 7, cA, sA);
+        R(20, 8, cB, sB);
 
         // screen_clear(idx);   // not needed
         int offsetx = xoff[idx], offsety = yoff[idx]; 
@@ -148,6 +168,14 @@ void donut_pixel(int idx) {
             }
         }
         /* STUDENT: TODO: your code here */
+        frame_count++;
+        if(idx == 0 && frame_count >= 60)
+        {
+            screen_clear(idx);
+            exit_process(0);
+        }
+        
+        yield();
     }
 }
 
