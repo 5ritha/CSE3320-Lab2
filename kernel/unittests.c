@@ -208,14 +208,24 @@ static char pipebuf[NSIZE];
 static int nwrite=0, nread=0; 
 
 // write n chars from "str" to pipebuf. block if buf is full
-static void do_write(const char *str, int n) {
+static void do_write(const char *str, int n) 
+{
     int i=0; 
     acquire(&testlock); 
-    while (i<n) {
-        if (nwrite == nread + NSIZE) { // pipe write full
+    while (i<n) 
+    {
+        if (nwrite == nread + NSIZE) 
+        { // pipe write full
             /* STUDENT: TODO: your code here */
-        } else {
+            sleep(&nwrite, &testlock);
+        } 
+        else 
+        {
             /* STUDENT: TODO: your code here */
+            pipebuf[nwrite % NSIZE] = str[i];
+            i++;
+            nwrite++;
+            wakeup(&nread);
         }
     }
     // done writing n bytes, buf not full, wakeup reader anyway
@@ -227,20 +237,30 @@ static void do_write(const char *str, int n) {
 // char: buf for receiving chars
 // n: read at most n chars. 
 // return: # of chars actually read
-static int do_read(char *str, int n) {
+static int do_read(char *str, int n) 
+{
     int i; 
-
     acquire(&testlock); 
-    while (nread == nwrite) {   // pipe empty
+    while (nread == nwrite) 
+    {   // pipe empty
         /* STUDENT: TODO: your code here */
+        sleep(&nread, &testlock);
     }
-    for (i=0; i<n; i++) {
+    for (i=0; i<n; i++) 
+    {
         // pipe empty
-            /* STUDENT: TODO: your code here */
+        /* STUDENT: TODO: your code here */
+        if(nread == nwrite)
+        {
+            break;
+        }
         // read out
         /* STUDENT: TODO: your code here */
+        str[i] = pipebuf[nread % NSIZE];
+        nread++;
     }
     /* STUDENT: TODO: your code here */
+    wakeup(&nwrite);
     release(&testlock); 
     return i; 
 }
